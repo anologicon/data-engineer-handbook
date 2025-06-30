@@ -3,7 +3,7 @@ declare
 	dt record;
 --date(dt.generate_series) + interval '1 day'
 BEGIN
-	for dt in SELECT generate_series('2023-01-03'::date, '2023-03-31'::date, INTERVAL '1 day') loop
+	for dt in SELECT generate_series('2023-01-01'::date, '2023-03-31'::date, INTERVAL '1 day') loop
 		INSERT INTO user_devices_cumulated
 		WITH yesterday AS (
 		        SELECT *
