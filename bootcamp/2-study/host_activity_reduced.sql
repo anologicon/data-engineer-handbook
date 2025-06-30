@@ -1,17 +1,22 @@
-DROP TABLE host_activity_reduced;
+-- Drop the table if it exists
+DROP TABLE IF EXISTS host_activity_reduced;
+-- Create a table to store reduced host activity by month
 CREATE TABLE host_activity_reduced (
     month DATE,
     host TEXT,
-    hit_array BIGINT [],
-    unique_visitors_array BIGINT [],
+    hit_array BIGINT[],
+    unique_visitors_array BIGINT[],
     PRIMARY KEY (month, host)
 );
+-- Insert or update monthly host activity and unique visitors arrays
+-- yesterday: Gets the previous month's host activity for reference and merging
 INSERT INTO host_activity_reduced
 WITH yesterday AS (
         SELECT *
         FROM host_activity_reduced
         WHERE month = '2023-01-01'
     ),
+    -- today: Aggregates today's hits and unique visitors per host
     today AS (
         SELECT host,
             DATE(DATE_TRUNC('day', DATE(event_time))) AS today_date,

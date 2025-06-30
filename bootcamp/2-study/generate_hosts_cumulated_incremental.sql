@@ -1,14 +1,19 @@
+-- Drop the table if it exists
 DROP TABLE IF EXISTS hosts_cumulated;
+-- Create a table to store hosts and their activity dates with a primary key
 CREATE TABLE hosts_cumulated (
     host TEXT,
     host_activity_datelist DATE[],
     PRIMARY KEY (host)
 );
 
+-- Insert or update host activity dates incrementally
+-- today: Gets the current state of the hosts_cumulated table
 INSERT INTO hosts_cumulated
 WITH today AS (
     SELECT * FROM hosts_cumulated
 ),
+-- yesterday: Gets the hosts that had activity on the specified date
 yesterday AS (
     SELECT
         DISTINCT
