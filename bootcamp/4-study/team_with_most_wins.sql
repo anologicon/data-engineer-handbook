@@ -32,3 +32,5 @@ FROM unnest_game
     LEFT JOIN teams ON CAST(teams.team_id AS text) = unnest_game.team_ref
 ORDER BY date_ref DESC,
     4 DESC
+
+LIMIT 1;
