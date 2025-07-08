@@ -1,58 +1,60 @@
-with
-	game_augmented as (
-		select
+WITH
+	game_augmented AS (
+		SELECT
 			game_details.player_name,
 			game_details.team_abbreviation,
-			coalesce(cast(games.season as text), 'unknow') as season,
-			coalesce(game_details.pts, 0) as points,
-			case 
-				when game_details.team_id = games.home_team_id and home_team_wins = 1 then 1
-				else 0
-			end as team_win
-		from game_details
-		inner join games on games.game_id = game_details.game_id
+			COALESCE(CAST(games.season AS TEXT), 'unknow') AS season,
+			COALESCE(game_details.pts, 0) AS points,
+			CASE 
+				WHEN game_details.team_id = games.home_team_id AND home_team_wins = 1 THEN 1
+				ELSE 0
+			END AS team_win
+		FROM game_details
+		INNER JOIN games ON games.game_id = game_details.game_id
 	),
 	
-	group_sets as (
-		select
-	coalesce(player_name, '(overall)') as player_name,
-	coalesce(team_abbreviation, '(overall)') as team_abbreviation,
-	coalesce(season, '(overall)') as season,
-	SUM(points) as total_points,
-	COUNT(team_win) as total_wins
-from game_augmented
-group by grouping sets (
-	(player_name, team_abbreviation),
-	(player_name, season),
-	(team_abbreviation)
-)	
+	group_sets AS (
+		SELECT
+			COALESCE(player_name, '(overall)') AS player_name,
+			COALESCE(team_abbreviation, '(overall)') AS team_abbreviation,
+			COALESCE(season, '(overall)') AS season,
+			SUM(points) AS total_points,
+			COUNT(team_win) AS total_wins
+		FROM game_augmented
+		GROUP BY GROUPING SETS (
+			(player_name, team_abbreviation),
+			(player_name, season),
+			(team_abbreviation)
+		)	
 	)
-	/** who scored the most points playing for one team?
-	select
+	/** WHO SCORED THE MOST POINTS PLAYING FOR ONE TEAM?
+	SELECT
 		player_name,
 		team_abbreviation,
 		total_points
-	from group_sets
-	where season = '(overall)' and player_name != '(overall)' and team_abbreviation != '(overall)'
-	order by total_points desc
-	limit 1
+	FROM group_sets
+	WHERE season = '(overall)' AND player_name != '(overall)' AND team_abbreviation != '(overall)'
+	ORDER BY total_points DESC
+	LIMIT 1
 	**/
 	
-	/** who scored the most points in one season
-	select
+	/** WHO SCORED THE MOST POINTS IN ONE SEASON
+	SELECT
 		player_name,
 		season,
 		total_points
-	from group_sets
-	where season != '(overall)' and player_name != '(overall)' and team_abbreviation = '(overall)'
-	order by total_points desc
-	limit 1
+	FROM group_sets
+	WHERE season != '(overall)' AND player_name != '(overall)' AND team_abbreviation = '(overall)'
+	ORDER BY total_points DESC
+	LIMIT 1
 	**/
-	
-	select
+	/**
+	WHICH TEAM WON THE MOST GAMES IN ONE SEASON
+	**/
+	SELECT
 		team_abbreviation,
 		total_wins
-	from group_sets
-	where season = '(overall)' and player_name = '(overall)' and team_abbreviation != '(overall)'
-	order by total_wins desc
-	limit 1
+	FROM group_sets
+	WHERE season = '(overall)' AND player_name = '(overall)' AND team_abbreviation != '(overall)'
+	ORDER BY total_wins DESC
+	LIMIT 1

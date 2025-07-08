@@ -1,44 +1,44 @@
-drop table if exists players_carrear_tracking;
-create table players_carrear_tracking (
-	player_name text,
-	first_season_active int,
-	last_season_active int,
-	season_active_sate text,
-	season int,
-	primary key (player_name, season)
+DROP TABLE IF EXISTS players_carrear_tracking;
+CREATE TABLE players_carrear_tracking (
+	player_name TEXT,
+	first_season_active INT,
+	last_season_active INT,
+	season_active_sate TEXT,
+	season INT,
+	PRIMARY KEY (player_name, season)
 );
 
-insert into players_carrear_tracking
-with
+INSERT INTO players_carrear_tracking
+WITH
 	
-	last_season as (
-		select *
-		from players_carrear_tracking
-		where season = 1995
+	last_season AS (
+		SELECT *
+		FROM players_carrear_tracking
+		WHERE season = 1995
 	),
 	
-	this_season as (
-		select
+	this_season AS (
+		SELECT
 			player_name,
 			season
-		from player_seasons
-		where season = 1996
+		FROM player_seasons
+		WHERE season = 1996
 	)
 	
-	select
-		coalesce(this_season.player_name, last_season.player_name) as player_name,
-		coalesce(last_season.first_season_active, this_season.season) as first_season_active,
-		coalesce(this_season.season, last_season.last_season_active) as last_season_active,
-		case
-			when last_season.player_name is null then 'New'
-			when last_season.last_season_active = this_season.season - 1 then 'Continued Playing'
-			when last_season.last_season_active < this_season.season - 1 then 'Returned from Retirement'
-			when this_season.player_name is null and last_season.last_season_active = last_season .season then 'Retired'
-			else 'Stayed Retired'
-		end as season_active_sate,
-		coalesce(this_season.season, last_season.season + 1) as season
+	SELECT
+		COALESCE(this_season.player_name, last_season.player_name) AS player_name,
+		COALESCE(last_season.first_season_active, this_season.season) AS first_season_active,
+		COALESCE(this_season.season, last_season.last_season_active) AS last_season_active,
+		CASE
+			WHEN last_season.player_name IS NULL THEN 'New'
+			WHEN last_season.last_season_active = this_season.season - 1 THEN 'Continued Playing'
+			WHEN last_season.last_season_active < this_season.season - 1 THEN 'Returned from Retirement'
+			WHEN this_season.player_name IS NULL AND last_season.last_season_active = last_season.season THEN 'Retired'
+			ELSE 'Stayed Retired'
+		END AS season_active_sate,
+		COALESCE(this_season.season, last_season.season + 1) AS season
 			
-	from this_season
-	full outer join last_season on this_season.player_name = last_season.player_name
---	where this_season.player_name = 'Michael Jordan'
+	FROM this_season
+	FULL OUTER JOIN last_season ON this_season.player_name = last_season.player_name
+--	WHERE this_season.player_name = 'Michael Jordan'
 ;
