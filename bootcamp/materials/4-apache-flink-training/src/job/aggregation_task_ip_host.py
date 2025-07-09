@@ -2,7 +2,7 @@ import os
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.table import EnvironmentSettings, DataTypes, TableEnvironment, StreamTableEnvironment
 from pyflink.table.expressions import lit, col
-from pyflink.table.window import Tumble
+from pyflink.table.window import Session
 
 
 def create_aggregated_ip_host_events_sink_postgres(t_env):
@@ -75,7 +75,7 @@ def log_aggregation():
         aggregated_table = create_aggregated_ip_host_events_sink_postgres(t_env)
         t_env.from_path(source_table) \
             .window(
-            Tumble.over(lit(5).minutes).on(col("window_timestamp")).alias("w")
+            Session.with_gap(lit(5).minutes).on(col("window_timestamp")).alias("w")
         ).group_by(
             col("w"),
             col("host"),
